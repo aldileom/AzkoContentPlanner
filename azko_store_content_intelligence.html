@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AZKO Store Content Intelligence</title>
+<style>
+:root{--red:#ed2608;--red2:#c91f08;--ink:#292b2d;--muted:#74777a;--bg:#f5f5f2;--card:#fff;--line:#e7e7e2;--soft:#fff0eb;--sand:#f2e5d8;--green:#487d62;--gold:#bc8b37;--shadow:0 7px 24px rgba(30,30,25,.06)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,Arial,sans-serif}
+header{background:#fff;padding:20px clamp(16px,4vw,46px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.logo{width:145px;height:auto;display:block}.brandline{height:44px;width:1px;background:#ddd}.headcopy .tag{color:var(--red);font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase}.headcopy h1{font-size:clamp(22px,3vw,31px);margin:2px 0 0;line-height:1.15}.headcopy p{margin:4px 0 0;color:var(--muted);font-size:12px}
+main{max-width:1480px;margin:auto;padding:22px clamp(13px,3vw,36px) 48px}
+.toolbar{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:13px}.left,.right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button{border:0;border-radius:9px;padding:10px 13px;font-weight:800;cursor:pointer;background:var(--red);color:white;font-size:12px}button:hover{filter:brightness(.96)}button.secondary{background:#f0efeb;color:#454545}button.outline{background:white;color:var(--red);border:1px solid #f1b6aa}button.danger{background:#fae6e1;color:#a83220}
+input,select,textarea{width:100%;min-width:0;border:1px solid #deded8;border-radius:8px;padding:9px 10px;background:#fff;color:var(--ink);font:inherit}input:focus,select:focus,textarea:focus{outline:2px solid #f5b1a3;border-color:transparent}
+label{font-size:11px;font-weight:800;color:#65686b;display:block;margin-bottom:5px}
+.panel,.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.panel h2{font-size:15px;margin:0 0 12px}.muted{color:var(--muted)}.tiny{font-size:10px}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:13px 0}
+.kpi{padding:14px;min-height:100px;border-top:3px solid var(--red)}.kpi .label{font-size:10px;color:var(--muted);font-weight:800}.kpi .val{font-size:25px;font-weight:900;letter-spacing:-.04em;margin:7px 0 2px}.kpi .hint{font-size:10px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin:12px 0}.layout.equal{grid-template-columns:1fr 1fr}
+.chart{height:220px}.chart canvas{width:100%;height:100%}
+.tabs{display:flex;gap:5px;overflow:auto;border-bottom:1px solid var(--line);margin-bottom:15px}.tab{background:transparent;color:#737373;border-radius:8px 8px 0 0;white-space:nowrap}.tab.active{background:var(--soft);color:var(--red)}
+.section{display:none}.section.active{display:block}
+.formgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}.span2{grid-column:span 2}.span4{grid-column:span 4}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.note{padding:11px 13px;background:#fff4ef;border-left:3px solid var(--red);border-radius:8px;color:#70483f;font-size:11px;margin:10px 0 14px}
+.pillar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.pillar{border:1px solid var(--line);border-radius:11px;padding:12px;background:#fff}.pillar b{font-size:12px;display:block}.pillar p{font-size:10px;color:var(--muted);margin:5px 0 0}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:10px}table{border-collapse:collapse;width:100%;min-width:1050px;font-size:11px}th,td{text-align:left;padding:9px;border-bottom:1px solid #eee;white-space:nowrap}th{background:#f8f2ef;color:#784237;position:sticky;top:0}td a{color:var(--red);font-weight:800;text-decoration:none}
+.pill{display:inline-block;padding:3px 8px;border-radius:30px;background:#fff0eb;color:#b72d16;font-size:10px;font-weight:800}
+.rank{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #eee}.rank:last-child{border:0}.ranknum{font-size:18px;color:var(--red);font-weight:900}.ranktitle{font-weight:800}.rankmeta{font-size:10px;color:var(--muted)}
+.insights{display:grid;gap:9px}.insight{padding:12px;background:#faf5f0;border-radius:9px;border-left:3px solid var(--green)}.insight strong{display:block;margin-bottom:3px}
+.empty{padding:25px;text-align:center;border:1px dashed #ddd;border-radius:10px;color:var(--muted)}
+.filters{display:flex;gap:7px;align-items:center}.filters input{width:auto}
+footer{text-align:center;color:#888;font-size:10px;margin-top:22px}
+@media(max-width:1000px){.kpis{grid-template-columns:repeat(3,1fr)}.pillar-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){header{gap:12px}.logo{width:105px}.brandline{height:35px}.layout,.layout.equal{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr 1fr}.span4{grid-column:span 2}.pillar-grid{grid-template-columns:1fr 1fr}.kpi .val{font-size:21px}}
+</style>
+</head>
+<body>
+<header>
+<img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/1/14/Azko.png" alt="AZKO" onerror="this.style.display='none';document.getElementById('fallbackLogo').style.display='block'">
+<div id="fallbackLogo" style="display:none;color:#ed2608;font-weight:1000;font-size:34px;letter-spacing:-3px">az•ko</div>
+<div class="brandline"></div>
+<div class="headcopy"><div class="tag">Store content intelligence</div><h1>AZKO Social Media Performance</h1><p>Your Home Life Improvement Partner · From store stories to measurable impact</p></div>
+</header>
+<main>
+<div class="toolbar">
+ <div class="left"><span class="pill" id="count">0 konten tersimpan</span><span class="tiny muted">Manual input · Otomatis dihitung · Tersimpan di browser</span></div>
+ <div class="right"><button id="newBtn">＋ Tambah konten</button><button class="secondary" id="csvOut">Export CSV</button><button class="secondary" id="csvIn">Import CSV</button><input id="file" type="file" accept=".csv" hidden></div>
+</div>
+<div class="panel">
+ <div class="toolbar" style="margin:0"><div><h2 style="margin:0">Store & reporting period</h2><span class="tiny muted">Store dapat diganti sesuai lokasi akun TikTok yang dikelola</span></div>
+ <div class="right"><input id="storeName" value="AZKO LW Grand Wisata" style="width:210px" aria-label="Nama toko"><input type="date" id="from"><span class="muted">—</span><input type="date" id="to"><button class="secondary" id="allDates">Semua tanggal</button></div></div>
+</div>
+<div class="kpis" id="kpis"></div>
+<div class="layout">
+ <div class="panel"><h2>Content performance trend</h2><div class="chart"><canvas id="trend"></canvas></div><div class="tiny muted">Views dan total engagement dari konten terpilih (maks. 12 konten terbaru)</div></div>
+ <div class="panel"><h2>Content pillar contribution</h2><div class="chart"><canvas id="pillars"></canvas></div><div id="pillarLegend" class="tiny muted"></div></div>
+</div>
+<div class="layout equal">
+ <div class="panel"><h2>Top 5 konten — views</h2><div id="top"></div></div>
+ <div class="panel"><h2>Top 5 konten — engagement rate</h2><div id="topER"></div></div>
+</div>
+<div class="panel" style="margin-top:12px">
+ <div class="tabs">
+  <button class="tab active" data-tab="database">Content database</button>
+  <button class="tab" data-tab="input">Input / update konten</button>
+  <button class="tab" data-tab="pillarguide">Pillar strategy</button>
+  <button class="tab" data-tab="insight">Store insights</button>
+ </div>
+ <section class="section active" id="database">
+  <div class="toolbar"><div><h2 style="margin:0">Content tracker</h2><span class="tiny muted">Saring dan urutkan konten toko</span></div><div class="right"><input id="search" placeholder="Cari judul / pillar..." style="width:190px"><select id="sort" style="width:auto"><option value="date">Tanggal terbaru</option><option value="views">Views tertinggi</option><option value="er">ER tertinggi</option><option value="eng">Engagement tertinggi</option></select></div></div>
+  <div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Judul konten</th><th>Content pillar</th><th>Objective</th><th>Format</th><th>Views</th><th>Likes</th><th>Comments</th><th>Shares</th><th>Saves</th><th>Total eng.</th><th>ER / views</th><th>Aksi</th></tr></thead><tbody id="rows"></tbody></table></div><div class="tiny muted" id="summary" style="margin-top:8px"></div>
+ </section>
+ <section class="section" id="input">
+  <h2 id="formHeading">Tambah konten toko</h2>
+  <div class="note">Masukkan metrik secara manual dari TikTok Analytics. Kolom metrik kosong akan dianggap belum tersedia; bukan otomatis dianggap nol. Kamu bisa edit angka video yang sama saat melakukan update H+1, H+3, H+7, dan seterusnya.</div>
+  <form id="form"><input type="hidden" id="id">
+   <div class="formgrid">
+    <div><label>Tanggal posting *</label><input id="date" type="date" required></div>
+    <div class="span2"><label>Judul / ide konten *</label><input id="title" required placeholder="Contoh: 3 solusi area dapur lebih rapi"></div>
+    <div><label>Link TikTok</label><input id="url" type="url" placeholder="https://www.tiktok.com/..."></div>
+    <div class="span2"><label>Content pillar *</label><select id="pillar" required>
+     <option value="">Pilih pillar</option>
+     <option>Product Solution & Demo</option><option>Home Inspiration & Before-After</option><option>Store Experience & Discovery</option><option>Promo, Value & Best Deal</option><option>Service & After-Sales</option><option>Member & Omnichannel</option><option>People, Advisor & Trust</option><option>Local Community & Store Activation</option>
+    </select></div>
+    <div><label>Objective konten</label><select id="objective"><option>Awareness</option><option>Education</option><option>Engagement</option><option>Store Traffic</option><option>Conversion</option><option>Retention / Loyalty</option></select></div>
+    <div><label>Format konten</label><select id="format"><option>Product demo</option><option>Tutorial / How-to</option><option>Problem-solution</option><option>Before-after</option><option>Store tour</option><option>Advisor POV</option><option>Storytelling</option><option>Trend / entertainment</option><option>Promo announcement</option><option>Customer FAQ</option><option>Live / event recap</option><option>Other</option></select></div>
+    <div><label>Durasi (detik)</label><input id="duration" type="number" min="0" placeholder="30"></div>
+    <div><label>Produk / departemen terkait</label><input id="product" placeholder="Contoh: KRISBOW, Paint, Plumbing"></div>
+    <div><label>Views *</label><input id="views" type="number" min="0" required placeholder="0"></div>
+    <div><label>Likes</label><input id="likes" type="number" min="0" placeholder="0"></div>
+    <div><label>Comments</label><input id="comments" type="number" min="0" placeholder="0"></div>
+    <div><label>Shares</label><input id="shares" type="number" min="0" placeholder="0"></div>
+    <div><label>Saves</label><input id="saves" type="number" min="0" placeholder="0"></div>
+    <div><label>Profile visits (opsional)</label><input id="profile" type="number" min="0" placeholder=""></div>
+    <div><label>Followers gained (opsional)</label><input id="followers" type="number" min="0" placeholder=""></div>
+    <div><label>Update stage</label><select id="stage"><option>Latest snapshot</option><option>H+1</option><option>H+3</option><option>H+7</option><option>H+30</option></select></div>
+    <div class="span2"><label>Hook / opening video (opsional)</label><input id="hook" placeholder="Contoh: Masih bingung pilih bor yang tepat?"></div>
+    <div class="span2"><label>CTA / call to action (opsional)</label><input id="cta" placeholder="Contoh: Cek produknya langsung di toko AZKO"></div>
+   </div>
+   <div class="actions"><button type="submit">Simpan konten</button><button type="button" class="secondary" id="clear">Reset form</button></div>
+  </form>
+ </section>
+ <section class="section" id="pillarguide">
+  <h2>AZKO store content pillars</h2><p class="tiny muted">Kerangka editorial untuk mengubah aktivitas toko dan keunggulan produk/layanan menjadi konten yang membantu pelanggan.</p>
+  <div class="pillar-grid">
+   <div class="pillar"><b>01 · Product Solution & Demo</b><p>Demo produk, cara pakai, perbandingan fitur, tips memilih, problem-solution, product knowledge dari advisor.</p></div>
+   <div class="pillar"><b>02 · Home Inspiration & Before-After</b><p>Inspirasi ruang, ide penataan, solusi rumah sehari-hari, makeover sederhana, rekomendasi produk berdasarkan kebutuhan.</p></div>
+   <div class="pillar"><b>03 · Store Experience & Discovery</b><p>Store tour, product discovery, display menarik, kategori/departemen, pengalaman belanja dan kemudahan menemukan produk.</p></div>
+   <div class="pillar"><b>04 · Promo, Value & Best Deal</b><p>Promo terverifikasi, value for money, bundling, produk pilihan, highlight manfaat dan alasan penawaran relevan.</p></div>
+   <div class="pillar"><b>05 · Service & After-Sales</b><p>Garansi, instalasi, layanan teknisi, konsultasi, perawatan produk, panduan klaim dan dukungan setelah pembelian.</p></div>
+   <div class="pillar"><b>06 · Member & Omnichannel</b><p>Manfaat member/rewards, cara cek produk, belanja online-offline, ruparupa, opsi layanan yang tersedia.</p></div>
+   <div class="pillar"><b>07 · People, Advisor & Trust</b><p>Advisor menjawab FAQ, rekomendasi berdasarkan kebutuhan, cerita tim toko, service moment dan edukasi yang human.</p></div>
+   <div class="pillar"><b>08 · Local Community & Store Activation</b><p>Aktivitas toko lokal, momen komunitas, event, kebutuhan khas area sekitar, konten relevan dengan lingkungan toko.</p></div>
+  </div>
+  <div class="note"><b>Prinsip editorial:</b> jangan menjadikan akun toko hanya katalog produk dan poster promo. Prioritaskan konten yang menunjukkan masalah pelanggan, solusi yang relevan, bukti/demo, lalu arahkan ke toko atau kanal pembelian secara natural.</div>
+ </section>
+ <section class="section" id="insight">
+  <h2>Store content intelligence</h2><div class="note">Analisis otomatis memakai data yang benar-benar dimasukkan. Dashboard tidak bisa menyimpulkan retention, watch time, demografi, sales conversion, atau kunjungan toko tanpa metrik pendukung.</div><div class="insights" id="insightList"></div>
+ </section>
+</div>
+<footer>AZKO Store Content Intelligence · Internal planning prototype · AZKO brand identity and slogan referenced from public brand information</footer>
+</main>
+<script>
+const $=x=>document.getElementById(x),keys=['date','title','url','pillar','objective','format','duration','product','views','likes','comments','shares','saves','profile','followers','stage','hook','cta'];
+let data=[];try{data=JSON.parse(localStorage.getItem('azkoStoreContent')||'[]')}catch(e){}
+const n=v=>v===''||v==null?null:Number(v),eng=r=>(r.likes||0)+(r.comments||0)+(r.shares||0)+(r.saves||0),rate=r=>r.views>0?eng(r)/r.views*100:null;
+const f=v=>v==null||!Number.isFinite(v)?'N/A':new Intl.NumberFormat('id-ID',{maximumFractionDigits:1}).format(v),p=v=>v==null?'N/A':v.toFixed(2)+'%';
+const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function filtered(){let a=$('from').value,b=$('to').value;return data.filter(r=>(!a||r.date>=a)&&(!b||r.date<=b))}
+function store(){localStorage.setItem('azkoStoreContent',JSON.stringify(data));render()}
+function k(label,val,hint){return `<div class="kpi"><div class="label">${label}</div><div class="val">${val}</div><div class="hint">${hint||''}</div></div>`}
+function render(){
+ let d=filtered(),views=d.reduce((s,r)=>s+(r.views||0),0),e=d.reduce((s,r)=>s+eng(r),0),count=d.length;
+ $('count').textContent=data.length+' konten tersimpan';
+ $('kpis').innerHTML=[k('TOTAL CONTENT',f(count),'Jumlah video diposting'),k('TOTAL VIEWS',f(views),'Akumulasi views'),k('TOTAL ENGAGEMENT',f(e),'Likes + comments + shares + saves'),k('AVG. VIEWS / CONTENT',f(count?views/count:null),'Rata-rata views per video'),k('ENGAGEMENT RATE',p(views?e/views*100:null),'Engagement ÷ views'),k('FOLLOWERS GAINED',d.some(r=>r.followers!=null)?f(d.reduce((s,r)=>s+(r.followers||0),0)):'N/A','Jika data tersedia')].join('');
+ trendChart(d);pillarChart(d);ranks(d);table(d);insights(d);
+}
+function chart(canvas,labels,series){let c=canvas,ctx=c.getContext('2d'),w=c.clientWidth,h=c.clientHeight,ratio=devicePixelRatio||1;c.width=w*ratio;c.height=h*ratio;ctx.scale(ratio,ratio);ctx.clearRect(0,0,w,h);let pad={l:43,r:10,t:12,b:34},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b,max=Math.max(1,...series.flatMap(s=>s.v));ctx.font='10px Arial';for(let j=0;j<4;j++){let y=pad.t+ch*j/3;ctx.strokeStyle='#eee';ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillStyle='#888';ctx.fillText(f(max*(1-j/3)),3,y+3)}series.forEach(s=>{ctx.strokeStyle=s.color;ctx.lineWidth=2;ctx.beginPath();s.v.forEach((v,i)=>{let x=pad.l+(labels.length<=1?cw/2:i*cw/(labels.length-1)),y=pad.t+ch-v/max*ch;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke()});labels.forEach((v,i)=>{if(labels.length<8||i%Math.ceil(labels.length/7)===0){ctx.fillStyle='#777';ctx.fillText(v.slice(0,11),pad.l+(labels.length<=1?cw/2:i*cw/(labels.length-1))-16,h-9)}});if(!labels.length){ctx.fillStyle='#777';ctx.fillText('Belum ada data',pad.l+10,h/2)}}
+function trendChart(d){let a=[...d].sort((x,y)=>x.date.localeCompare(y.date)).slice(-12);chart($('trend'),a.map(x=>x.title),[{v:a.map(x=>x.views),color:'#ed2608'},{v:a.map(eng),color:'#56866b'}])}
+function pillarChart(d){let g={};d.forEach(r=>(g[r.pillar||'Belum dipilih']??=[]).push(r));let a=Object.entries(g),c=$('pillars'),ctx=c.getContext('2d'),w=c.clientWidth,h=c.clientHeight,ratio=devicePixelRatio||1;c.width=w*ratio;c.height=h*ratio;ctx.scale(ratio,ratio);ctx.clearRect(0,0,w,h);let colors=['#ed2608','#f28a70','#4f7d65','#d5a44f','#9a7865','#7b8c9a','#c6a6a0','#8d9c70'],total=a.reduce((s,x)=>s+x[1].length,0),cx=w/2,cy=h/2,rad=Math.min(w,h)*.35,start=-Math.PI/2;a.forEach((x,i)=>{let ang=x[1].length/total*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,rad,start,start+ang);ctx.fillStyle=colors[i%colors.length];ctx.fill();start+=ang});ctx.textAlign='center';ctx.fillStyle='#292b2d';ctx.font='bold 20px Arial';ctx.fillText(total,cx,cy+4);ctx.font='10px Arial';ctx.fillStyle='#888';ctx.fillText('konten',cx,cy+18);$('pillarLegend').innerHTML=a.map((x,i)=>`<span style="margin-right:10px"><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${colors[i%colors.length]}"></i> ${safe(x[0])}: ${x[1].length}</span>`).join('')||'Belum ada data'}
+function ranks(d){let a=[...d].sort((x,y)=>y.views-x.views),b=[...d].filter(x=>rate(x)!=null).sort((x,y)=>rate(y)-rate(x));let row=(r,i)=>`<div class="rank"><div class="ranknum">${i+1}</div><div><div class="ranktitle">${safe(r.title)}</div><div class="rankmeta">${safe(r.pillar)} · ${f(r.views)} views · ER ${p(rate(r))}</div></div></div>`;$('top').innerHTML=a.length?a.slice(0,5).map(row).join(''):'<div class="empty">Belum ada konten. Input data pertama untuk melihat ranking.</div>';$('topER').innerHTML=b.length?b.slice(0,5).map(row).join(''):'<div class="empty">ER akan dihitung saat ada views.</div>'}
+function table(d){let q=$('search').value.toLowerCase(),sort=$('sort').value,a=d.filter(r=>(r.title+' '+r.pillar+' '+r.product).toLowerCase().includes(q));a.sort((x,y)=>sort==='views'?y.views-x.views:sort==='er'?(rate(y)||-1)-(rate(x)||-1):sort==='eng'?eng(y)-eng(x):y.date.localeCompare(x.date));$('rows').innerHTML=a.length?a.map(r=>`<tr><td>${safe(r.date)}</td><td>${r.url?`<a href="${safe(r.url)}" target="_blank" rel="noopener">${safe(r.title)}</a>`:safe(r.title)}</td><td>${safe(r.pillar)}</td><td>${safe(r.objective)}</td><td>${safe(r.format)}</td><td>${f(r.views)}</td><td>${f(r.likes)}</td><td>${f(r.comments)}</td><td>${f(r.shares)}</td><td>${f(r.saves)}</td><td>${f(eng(r))}</td><td>${p(rate(r))}</td><td><button class="secondary" onclick="edit('${r.id}')">Edit</button> <button class="danger" onclick="del('${r.id}')">Hapus</button></td></tr>`).join(''):'<tr><td colspan="13"><div class="empty">Tidak ada data pada filter ini. Tambahkan konten melalui tab Input / update konten.</div></td></tr>';$('summary').textContent=`Menampilkan ${a.length} dari ${d.length} konten pada periode terpilih.`}
+function insights(d){let box=$('insightList');if(!d.length){box.innerHTML='<div class="empty">Insight akan tampil setelah data konten AZKO dimasukkan.</div>';return}let by={};d.forEach(r=>(by[r.pillar||'Belum dipilih']??=[]).push(r));let groups=Object.entries(by).map(([name,rs])=>({name,qty:rs.length,avg:rs.reduce((s,r)=>s+r.views,0)/rs.length,er:rs.reduce((s,r)=>s+(rate(r)||0),0)/rs.length})).sort((a,b)=>b.avg-a.avg);let top=[...d].sort((a,b)=>b.views-a.views)[0],erTop=[...d].filter(r=>rate(r)!=null).sort((a,b)=>rate(b)-rate(a))[0],avg=d.reduce((s,r)=>s+r.views,0)/d.length;let list=[['Ringkasan performa',`${d.length} konten menghasilkan ${f(d.reduce((s,r)=>s+r.views,0))} views. Rata-rata ${f(avg)} views per konten.`],['Pillar dengan rata-rata views tertinggi',`${groups[0].name} memimpin dengan ${f(groups[0].avg)} views per konten dari ${groups[0].qty} konten. Validasi dengan sampel lebih banyak sebelum menjadikannya satu-satunya fokus.`],['Konten dengan jangkauan tertinggi',`“${top.title}” memperoleh ${f(top.views)} views. Bedah hook, produk, masalah pelanggan, demonstrasi, dan CTA untuk menemukan pola yang dapat diuji kembali.`]];if(erTop)list.push(['Konten dengan ER tertinggi',`“${erTop.title}” mencatat ER ${p(rate(erTop))}. Periksa komentar, pertanyaan, dan respons audiens untuk memahami pemicu interaksi.`]);let missing=['likes','comments','shares','saves'].filter(k=>d.some(r=>r[k]==null));if(missing.length)list.push(['Kelengkapan data',`Ada metrik yang belum lengkap: ${missing.join(', ')}. Lengkapi agar perbandingan engagement lebih adil.`]);list.push(['Strategi eksperimen toko','Uji seri video singkat: (1) masalah pelanggan, (2) demo solusi produk, (3) ajakan konsultasi/kunjungan toko. Ubah satu variabel tiap eksperimen agar hasil dapat dibandingkan.']);list.push(['Jaga keseimbangan konten','Jangan isi kalender hanya dengan promo. Seimbangkan edukasi produk, inspirasi rumah, pengalaman toko, layanan, people content, dan aktivasi lokal.']);box.innerHTML=list.map(x=>`<div class="insight"><strong>${x[0]}</strong>${x[1]}</div>`).join('')}
+function reset(){ $('form').reset();$('id').value='';$('formHeading').textContent='Tambah konten toko';$('date').value=new Date().toISOString().slice(0,10)}
+function tab(name){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===name))}
+function edit(id){let r=data.find(x=>x.id===id);if(!r)return;keys.forEach(k=>$(k).value=r[k]??'');$('id').value=id;$('formHeading').textContent='Update konten toko';tab('input');window.scrollTo({top:document.querySelector('.panel').getBoundingClientRect().top+scrollY-80,behavior:'smooth'})}
+function del(id){if(confirm('Hapus konten ini?')){data=data.filter(x=>x.id!==id);store()}}
+$('form').onsubmit=e=>{e.preventDefault();let id=$('id').value||String(Date.now()),r={id};keys.forEach(k=>r[k]=['duration','views','likes','comments','shares','saves','profile','followers'].includes(k)?n($(k).value):$(k).value);['views','likes','comments','shares','saves'].forEach(k=>r[k]=r[k]??0);data=data.filter(x=>x.id!==id);data.push(r);store();reset();tab('database')};
+$('clear').onclick=reset;$('newBtn').onclick=()=>{reset();tab('input')};document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>tab(t.dataset.tab));
+['from','to','search','sort'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',render));$('allDates').onclick=()=>{$('from').value='';$('to').value='';render()};
+$('csvOut').onclick=()=>{let cols=keys,lines=[cols.join(','),...data.map(r=>cols.map(k=>'"'+String(r[k]??'').replace(/"/g,'""')+'"').join(','))],blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='azko-store-content.csv';a.click();URL.revokeObjectURL(a.href)};
+$('csvIn').onclick=()=>$('file').click();$('file').onchange=async e=>{let file=e.target.files[0];if(!file)return;let txt=(await file.text()).replace(/^\ufeff/,''),lines=txt.split(/\r?\n/).filter(Boolean),parse=line=>{let out=[],v='',q=false;for(let i=0;i<line.length;i++){let c=line[i];if(c==='"'&&line[i+1]==='"'&&q){v+='"';i++}else if(c==='"')q=!q;else if(c===','&&!q){out.push(v);v=''}else v+=c}out.push(v);return out},cols=parse(lines.shift()),added=lines.map(line=>{let vals=parse(line),r={id:String(Date.now())+Math.random()};cols.forEach((k,i)=>r[k]=vals[i]??'');['duration','views','likes','comments','shares','saves','profile','followers'].forEach(k=>r[k]=n(r[k]));['views','likes','comments','shares','saves'].forEach(k=>r[k]=r[k]??0);return r}).filter(r=>r.date&&r.title);if(confirm(`Tambahkan ${added.length} konten ke database?`)){data.push(...added);store()}e.target.value=''};
+window.addEventListener('resize',render);reset();render();
+</script>
+</body></html>
